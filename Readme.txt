@@ -28,7 +28,7 @@ Use of agents and agentic development
 
 "Agentic" describes the repository's AI-assisted development workflow; the URL-shortening API itself does not require an AI agent to run.
 
-The AgentUrlShortner/docs/ folder provides context for developers and coding agents, including project scope, architecture, testing guidance, and agent instructions. The URL encode/decode feature is the reference vertical slice. Contributors can use those documents to understand the intended design, implement changes consistently, and run the matching tests.
+The root AGENTS.md defines the required plan -> implement -> test -> report workflow and requires human review and approval before merging. Detailed architecture and coding guidance lives in AgentUrlShortner/docs/agent-instructions.md; see AgentUrlShortner/docs/agentic-development-example.md for a sample task, test results, and review status. The URL encode/decode feature is the reference vertical slice.
 
 IDesign approach
 ----------------

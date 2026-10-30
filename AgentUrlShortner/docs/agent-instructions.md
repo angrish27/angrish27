@@ -21,12 +21,14 @@
 - Do not add NuGet packages unless necessary; prefer what already exists.
 
 ## Workflow for a new feature
-1. Add/adjust contracts (Client + Logic) → update [data-models.md](data-models.md).
-2. Add Utility/Accessor/Engine/Manager bottom-up, each with interface + registration.
-3. Add controller endpoint → update [flow-mapping.md](flow-mapping.md).
-4. Add tests per layer → follow [testing.md](testing.md).
-5. Infra changes → update [infra.md](infra.md).
-6. Run `dotnet build` and `dotnet test` on `Backend/CS.AgenticUrlShortner.sln`.
+Use this plan → implement → test → report workflow for code changes:
+1. **Plan:** inspect the affected code and docs, identify the intended change, architecture boundaries, and validation.
+2. **Implement:** make the change using the existing patterns. For a new feature, add/adjust contracts (Client + Logic) → update [data-models.md](data-models.md); add Utility/Accessor/Engine/Manager bottom-up, each with interface + registration; add the controller endpoint → update [flow-mapping.md](flow-mapping.md).
+3. **Test:** add tests per layer following [testing.md](testing.md), update [infra.md](infra.md) for infrastructure changes, and run `dotnet build` and `dotnet test` on `Backend/CS.AgenticUrlShortner.sln`.
+4. **Report:** summarize changed behavior, files/docs updated, validation commands and results, and any unresolved issues.
+5. **Human review:** a human must review and approve the changes before merge. Agent test results are not approval.
+
+See [agentic-development-example.md](agentic-development-example.md) for an example change report.
 
 ## Solution structure
 - Projects live on disk under the numbered folders (`Backend/3. Managers/...`) and in matching solution folders.

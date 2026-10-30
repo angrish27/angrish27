@@ -32,7 +32,9 @@ AgentUrlShortner/
 ## Document index
 | Doc | Purpose |
 |-----|---------|
+| [../../AGENTS.md](../../AGENTS.md) | Repository-wide agent workflow and human review requirement |
 | [agent-instructions.md](agent-instructions.md) | Rules agents MUST follow when changing code |
+| [agentic-development-example.md](agentic-development-example.md) | Example agent-driven change report |
 | [scope.md](scope.md) | What is in / out of scope, feature roadmap |
 | [architecture.md](architecture.md) | Layers, dependency rules, project references |
 | [bootstrap-chain.md](bootstrap-chain.md) | Startup, DI registration, factory creation chain |
