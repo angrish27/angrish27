@@ -16,7 +16,7 @@ namespace CS.AgenticUrlShortner.Utilities
         public static void RegisterTypes(IServiceCollection serviceCollection)
         {
             RegisterType<IIdentifierUtility, IdentifierUtility>(serviceCollection);
-            RegisterType<IBase62Utility, Base62Utility>(serviceCollection);
+            RegisterType<IShortCodeUtility, ShortCodeUtility>(serviceCollection);
         }
 
         public TService Create<TService>()

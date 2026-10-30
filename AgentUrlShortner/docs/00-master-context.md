@@ -7,7 +7,7 @@
 ## What this is
 A URL shortener service built on **.NET 10** using an **IDesign-style layered architecture**
 (Clients → Managers → Engines → Accessors, with Utilities and Common as cross-cutting layers).
-The URL shortener feature (`ProcessUrlController` -> `UrlManager` -> `UrlValidationEngine` / `UrlMappingAccessor` / `Base62Utility`)
+The URL shortener feature (`ProcessUrlController` -> `UrlManager` -> `UrlValidationEngine` / `UrlMappingAccessor` / `ShortCodeUtility`)
 is the reference vertical slice for all new features.
 
 ## Repository layout

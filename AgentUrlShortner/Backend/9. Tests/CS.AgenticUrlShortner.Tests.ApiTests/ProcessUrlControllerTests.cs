@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Binary;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -41,24 +42,39 @@ namespace CS.AgenticUrlShortner.Tests.ApiTests
         private static Task<HttpResponseMessage> EncodeAsync(HttpClient client, string longUrl) =>
             client.PostAsJsonAsync(EncodeRoute, new { longUrl });
 
+        private static string GetCode(HttpResponseMessage response) =>
+            response.Headers.Location.Segments.Last().TrimEnd('/');
+
+        private static long DecodeEpochNanoseconds(string code)
+        {
+            var bytes = Convert.FromBase64String(code.Replace('-', '+').Replace('_', '/') + "=");
+            return BinaryPrimitives.ReadInt64BigEndian(bytes);
+        }
+
         [TestMethod]
         public async Task EncodeUrl_NewUrl_Returns201WithLocationAndOnlyShortUrl()
         {
             using var factory = new ApiFactory(_storeFilePath);
             using var client = CreateClient(factory);
 
+            var before = (DateTimeOffset.UtcNow.UtcTicks - DateTimeOffset.UnixEpoch.UtcTicks) * 100;
             var response = await EncodeAsync(client, "https://example.com/a");
+            var after = (DateTimeOffset.UtcNow.UtcTicks - DateTimeOffset.UnixEpoch.UtcTicks) * 100;
             using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
 
             Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
             CollectionAssert.AreEqual(new[] { "shortUrl" }, json.RootElement.EnumerateObject().Select(p => p.Name).ToArray());
             var shortUrl = json.RootElement.GetProperty("shortUrl").GetString();
-            StringAssert.EndsWith(shortUrl, "/2tx");
+            var code = GetCode(response);
             Assert.AreEqual(shortUrl, response.Headers.Location?.ToString());
+            Assert.AreEqual(11, code.Length);
+            Assert.IsTrue(code.All(character => char.IsAsciiLetterOrDigit(character) || character is '-' or '_'));
+            var codeEpochNanoseconds = DecodeEpochNanoseconds(code);
+            Assert.IsTrue(codeEpochNanoseconds >= before && codeEpochNanoseconds <= after);
         }
 
         [TestMethod]
-        public async Task EncodeUrl_SequentialUrls_Return2txThen2ty()
+        public async Task EncodeUrl_DifferentUrls_ReturnUniqueEpochCodes()
         {
             using var factory = new ApiFactory(_storeFilePath);
             using var client = CreateClient(factory);
@@ -66,8 +82,10 @@ namespace CS.AgenticUrlShortner.Tests.ApiTests
             var first = await EncodeAsync(client, "https://example.com/a");
             var second = await EncodeAsync(client, "https://example.com/b");
 
-            StringAssert.EndsWith(first.Headers.Location?.ToString(), "/2tx");
-            StringAssert.EndsWith(second.Headers.Location?.ToString(), "/2ty");
+            var firstCode = GetCode(first);
+            var secondCode = GetCode(second);
+            Assert.AreNotEqual(firstCode, secondCode);
+            Assert.IsTrue(DecodeEpochNanoseconds(secondCode) > DecodeEpochNanoseconds(firstCode));
         }
 
         [TestMethod]
@@ -116,12 +134,27 @@ namespace CS.AgenticUrlShortner.Tests.ApiTests
         {
             using var factory = new ApiFactory(_storeFilePath);
             using var client = CreateClient(factory);
-            await EncodeAsync(client, "https://example.com/target?x=1");
+
+            var encodeResponse = await EncodeAsync(client, "https://example.com/target?x=1");
+            var response = await client.GetAsync($"/{GetCode(encodeResponse)}");
+
+            Assert.AreEqual(HttpStatusCode.Redirect, response.StatusCode);
+            Assert.AreEqual("https://example.com/target?x=1", response.Headers.Location?.ToString());
+        }
+
+        [TestMethod]
+        public async Task DecodeUrl_LegacyBase62Code_RemainsAvailable()
+        {
+            Directory.CreateDirectory(_directory);
+            File.WriteAllText(_storeFilePath,
+                "[{\"seqNumber\":11157,\"actualLongURL\":\"https://example.com/legacy\",\"base62\":\"2tx\"}]");
+            using var factory = new ApiFactory(_storeFilePath);
+            using var client = CreateClient(factory);
 
             var response = await client.GetAsync("/2tx");
 
             Assert.AreEqual(HttpStatusCode.Redirect, response.StatusCode);
-            Assert.AreEqual("https://example.com/target?x=1", response.Headers.Location?.ToString());
+            Assert.AreEqual("https://example.com/legacy", response.Headers.Location?.ToString());
         }
 
         [TestMethod]
@@ -138,23 +171,27 @@ namespace CS.AgenticUrlShortner.Tests.ApiTests
         }
 
         [TestMethod]
-        public async Task Restart_LoadsPersistedMappingsAndContinuesSequence()
+        public async Task Restart_LoadsPersistedMappingsAndContinuesEpochCodes()
         {
+            string firstCode;
             using (var firstRun = new ApiFactory(_storeFilePath))
             using (var client = CreateClient(firstRun))
-                await EncodeAsync(client, "https://example.com/a");
+            {
+                var firstResponse = await EncodeAsync(client, "https://example.com/a");
+                firstCode = GetCode(firstResponse);
+            }
 
             using var secondRun = new ApiFactory(_storeFilePath);
             using var restartedClient = CreateClient(secondRun);
 
-            var redirect = await restartedClient.GetAsync("/2tx");
+            var redirect = await restartedClient.GetAsync($"/{firstCode}");
             var duplicate = await EncodeAsync(restartedClient, "https://example.com/a");
             var next = await EncodeAsync(restartedClient, "https://example.com/b");
 
             Assert.AreEqual(HttpStatusCode.Redirect, redirect.StatusCode);
             Assert.AreEqual(HttpStatusCode.OK, duplicate.StatusCode);
             Assert.AreEqual(HttpStatusCode.Created, next.StatusCode);
-            StringAssert.EndsWith(next.Headers.Location?.ToString(), "/2ty");
+            Assert.IsTrue(DecodeEpochNanoseconds(GetCode(next)) > DecodeEpochNanoseconds(firstCode));
         }
 
         [TestMethod]

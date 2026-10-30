@@ -23,6 +23,7 @@ namespace CS.AgenticUrlShortner.Accessors.Url
         private readonly List<UrlMapping> _records = [];
         private string _filePath;
         private long _nextSeqNumber;
+        private long _lastCodeEpochNanoseconds = -1;
         private volatile bool _loaded;
 
         public void Load(string filePath)
@@ -37,11 +38,16 @@ namespace CS.AgenticUrlShortner.Accessors.Url
             foreach (var record in records)
             {
                 _records.Add(record);
-                _byCode[record.Base62] = record;
+                _byCode[record.ShortCode] = record;
                 _byLongUrl[record.ActualLongUrl] = record;
             }
 
             _nextSeqNumber = records.Count == 0 ? FirstSeqNumber : records.Max(r => r.SeqNumber) + 1;
+            _lastCodeEpochNanoseconds = records
+                .Where(record => record.CodeEpochNanoseconds.HasValue)
+                .Select(record => record.CodeEpochNanoseconds.Value)
+                .DefaultIfEmpty(-1)
+                .Max();
             _filePath = filePath;
             _loaded = true;
         }
@@ -58,11 +64,12 @@ namespace CS.AgenticUrlShortner.Accessors.Url
             return code != null && _byCode.TryGetValue(code, out var mapping) ? mapping : null;
         }
 
-        public async Task<(UrlMapping Mapping, bool Created)> GetOrAddAsync(string longUrl, Func<long, string> encode,
-            CancellationToken cancellationToken)
+        public async Task<(UrlMapping Mapping, bool Created)> GetOrAddAsync(string longUrl,
+            long requestEpochNanoseconds, Func<long, string> encode, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(longUrl);
             ArgumentNullException.ThrowIfNull(encode);
+            ArgumentOutOfRangeException.ThrowIfNegative(requestEpochNanoseconds);
             EnsureLoaded();
 
             await _writeLock.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -71,19 +78,29 @@ namespace CS.AgenticUrlShortner.Accessors.Url
                 if (_byLongUrl.TryGetValue(longUrl, out var existing))
                     return (existing, false);
 
+                var codeEpochNanoseconds = Math.Max(requestEpochNanoseconds, checked(_lastCodeEpochNanoseconds + 1));
+                var code = encode(codeEpochNanoseconds);
+                while (_byCode.ContainsKey(code))
+                {
+                    codeEpochNanoseconds = checked(codeEpochNanoseconds + 1);
+                    code = encode(codeEpochNanoseconds);
+                }
+
                 var mapping = new UrlMapping
                 {
                     SeqNumber = _nextSeqNumber,
                     ActualLongUrl = longUrl,
-                    Base62 = encode(_nextSeqNumber)
+                    ShortCode = code,
+                    CodeEpochNanoseconds = codeEpochNanoseconds
                 };
 
                 await PersistAsync([.. _records, mapping], cancellationToken).ConfigureAwait(false);
 
                 _records.Add(mapping);
                 _nextSeqNumber++;
-                _byCode[mapping.Base62] = mapping;
+                _byCode[mapping.ShortCode] = mapping;
                 _byLongUrl[mapping.ActualLongUrl] = mapping;
+                _lastCodeEpochNanoseconds = codeEpochNanoseconds;
 
                 return (mapping, true);
             }
@@ -138,10 +155,11 @@ namespace CS.AgenticUrlShortner.Accessors.Url
             foreach (var record in records)
             {
                 if (record == null || record.SeqNumber < FirstSeqNumber
-                    || string.IsNullOrEmpty(record.ActualLongUrl) || string.IsNullOrEmpty(record.Base62))
-                    throw Corrupt(filePath, "a record is missing required fields or has an invalid seqNumber");
+                    || string.IsNullOrEmpty(record.ActualLongUrl) || string.IsNullOrEmpty(record.ShortCode)
+                    || record.CodeEpochNanoseconds < 0)
+                    throw Corrupt(filePath, "a record is missing required fields or has invalid sequence or code timestamp data");
 
-                if (!seqNumbers.Add(record.SeqNumber) || !longUrls.Add(record.ActualLongUrl) || !codes.Add(record.Base62))
+                if (!seqNumbers.Add(record.SeqNumber) || !longUrls.Add(record.ActualLongUrl) || !codes.Add(record.ShortCode))
                     throw Corrupt(filePath, $"duplicate data found for seqNumber {record.SeqNumber}");
             }
 

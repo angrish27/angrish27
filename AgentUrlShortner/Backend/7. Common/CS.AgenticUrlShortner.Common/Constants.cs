@@ -12,5 +12,7 @@ namespace CS.AgenticUrlShortner.Common
         public const string EncodePermitLimitPerMinute = "RateLimiting:EncodePermitLimitPerMinute";
         public const int DefaultEncodePermitLimitPerMinute = 30;
         public const int MaxEncodeRequestBytes = 8 * 1024;
+        public const string Base64UrlAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+        public const string LegacyBase62Alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     }
 }

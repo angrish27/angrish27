@@ -37,7 +37,7 @@ namespace CS.AgenticUrlShortner.Tests.AccessorTests
             using var provider = services.BuildServiceProvider();
             var accessor = new AccessorFactory(new AmbientContext(), provider).Create<IUrlMappingAccessor>();
 
-            var (mapping, created) = await accessor.GetOrCreateAsync("https://example.com");
+            var (mapping, created) = await accessor.GetOrCreateAsync("https://example.com", 1);
 
             Assert.IsTrue(created);
             Assert.AreSame(fake.Mapping, mapping);
@@ -46,15 +46,16 @@ namespace CS.AgenticUrlShortner.Tests.AccessorTests
 
         private sealed class FakeStore : IUrlMappingStore
         {
-            public UrlMapping Mapping { get; } = new() { SeqNumber = 1, ActualLongUrl = "https://example.com", Base62 = "fake" };
+            public UrlMapping Mapping { get; } = new() { SeqNumber = 1, ActualLongUrl = "https://example.com", ShortCode = "fake" };
 
             public void Load(string location) { }
 
             public UrlMapping FindByLongUrl(string longUrl) => null;
 
-            public UrlMapping FindByCode(string code) => code == Mapping.Base62 ? Mapping : null;
+            public UrlMapping FindByCode(string code) => code == Mapping.ShortCode ? Mapping : null;
 
-            public Task<(UrlMapping Mapping, bool Created)> GetOrAddAsync(string longUrl, Func<long, string> encode, CancellationToken cancellationToken) =>
+            public Task<(UrlMapping Mapping, bool Created)> GetOrAddAsync(string longUrl, long requestEpochNanoseconds,
+                Func<long, string> encode, CancellationToken cancellationToken) =>
                 Task.FromResult((Mapping, true));
         }
     }

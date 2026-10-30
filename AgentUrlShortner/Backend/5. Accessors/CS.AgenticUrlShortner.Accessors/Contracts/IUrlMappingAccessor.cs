@@ -11,6 +11,7 @@ namespace CS.AgenticUrlShortner.Accessors.Contracts
 
         UrlMapping FindByCode(string code);
 
-        Task<(UrlMapping Mapping, bool Created)> GetOrCreateAsync(string longUrl, CancellationToken cancellationToken = default);
+        Task<(UrlMapping Mapping, bool Created)> GetOrCreateAsync(string longUrl, long requestEpochNanoseconds,
+            CancellationToken cancellationToken = default);
     }
 }

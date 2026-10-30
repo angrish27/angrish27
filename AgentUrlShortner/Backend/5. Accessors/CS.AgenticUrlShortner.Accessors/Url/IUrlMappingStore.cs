@@ -18,6 +18,7 @@ namespace CS.AgenticUrlShortner.Accessors.Url
 
         UrlMapping FindByCode(string code);
 
-        Task<(UrlMapping Mapping, bool Created)> GetOrAddAsync(string longUrl, Func<long, string> encode, CancellationToken cancellationToken);
+        Task<(UrlMapping Mapping, bool Created)> GetOrAddAsync(string longUrl, long requestEpochNanoseconds,
+            Func<long, string> encode, CancellationToken cancellationToken);
     }
 }

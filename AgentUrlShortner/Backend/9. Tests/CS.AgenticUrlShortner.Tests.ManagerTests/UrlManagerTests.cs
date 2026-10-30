@@ -6,6 +6,7 @@ using CS.AgenticUrlShortner.Contracts.Client;
 using CS.AgenticUrlShortner.Managers;
 using CS.AgenticUrlShortner.Managers.Contracts;
 using CS.AgenticUrlShortner.Shared.Tests;
+using CS.AgenticUrlShortner.Utilities.Contracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CS.AgenticUrlShortner.Tests.ManagerTests
@@ -39,10 +40,11 @@ namespace CS.AgenticUrlShortner.Tests.ManagerTests
             var second = await manager.EncodeUrlAsync(new EncodeUrlRequest { LongUrl = "https://b.com" });
 
             Assert.IsTrue(first.IsNew);
-            Assert.AreEqual("2tx", first.Code);
+            Assert.IsTrue(UtilityFactory.Create<IShortCodeUtility>().IsValid(first.Code));
             Assert.IsFalse(duplicate.IsNew);
-            Assert.AreEqual("2tx", duplicate.Code);
-            Assert.AreEqual("2ty", second.Code);
+            Assert.AreEqual(first.Code, duplicate.Code);
+            Assert.AreNotEqual(first.Code, second.Code);
+            Assert.IsTrue(UtilityFactory.Create<IShortCodeUtility>().IsValid(second.Code));
         }
 
         [TestMethod]
@@ -59,7 +61,8 @@ namespace CS.AgenticUrlShortner.Tests.ManagerTests
             var manager = ManagerFactory.Create<IUrlManager>();
             await manager.EncodeUrlAsync(new EncodeUrlRequest { LongUrl = "https://a.com/x" });
 
-            Assert.AreEqual("https://a.com/x", (await manager.DecodeUrlAsync("2tx")).LongUrl);
+            var encoded = await manager.EncodeUrlAsync(new EncodeUrlRequest { LongUrl = "https://a.com/x" });
+            Assert.AreEqual("https://a.com/x", (await manager.DecodeUrlAsync(encoded.Code)).LongUrl);
             Assert.IsNull(await manager.DecodeUrlAsync("zzz"));
             Assert.IsNull(await manager.DecodeUrlAsync("bad-code"));
         }

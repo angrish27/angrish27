@@ -20,10 +20,12 @@ namespace CS.AgenticUrlShortner.Accessors.Url
             return Store.FindByCode(code);
         }
 
-        public Task<(UrlMapping Mapping, bool Created)> GetOrCreateAsync(string longUrl, CancellationToken cancellationToken = default)
+        public Task<(UrlMapping Mapping, bool Created)> GetOrCreateAsync(string longUrl, long requestEpochNanoseconds,
+            CancellationToken cancellationToken = default)
         {
-            var base62 = UtilityFactory.Create<IBase62Utility>();
-            return Store.GetOrAddAsync(longUrl, base62.Encode, cancellationToken);
+            var shortCode = UtilityFactory.Create<IShortCodeUtility>();
+            return Store.GetOrAddAsync(longUrl, requestEpochNanoseconds,
+                shortCode.EncodeUnixEpochNanoseconds, cancellationToken);
         }
     }
 }

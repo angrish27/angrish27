@@ -14,7 +14,7 @@ ManagerFactory.RegisterTypes(services)
  ├─ RegisterType<IUrlManager, UrlManager>
  ├─ EngineFactory.RegisterTypes    → RegisterType<IUrlValidationEngine, UrlValidationEngine>
  ├─ AccessorFactory.RegisterTypes  → RegisterType<IUrlMappingAccessor, UrlMappingAccessor>, TryAddSingleton<IUrlMappingStore, UrlMappingStore>
- └─ UtilityFactory.RegisterTypes   → RegisterType<IIdentifierUtility, IdentifierUtility>, RegisterType<IBase62Utility, Base62Utility>
+ └─ UtilityFactory.RegisterTypes   → RegisterType<IIdentifierUtility, IdentifierUtility>, RegisterType<IShortCodeUtility, ShortCodeUtility>
 services.AddTransient(sp => new ManagerFactory(_ambientContext.Value, sp))
 services.AddCors(...AllowedOrigins...)
 services.AddHealthChecks()

@@ -10,7 +10,18 @@ namespace CS.AgenticUrlShortner.Contracts.Logic
         [JsonPropertyName("actualLongURL")]
         public string ActualLongUrl { get; set; }
 
+        [JsonPropertyName("shortCode")]
+        public string ShortCode { get; set; }
+
+        [JsonPropertyName("codeEpochNanoseconds")]
+        public long? CodeEpochNanoseconds { get; set; }
+
         [JsonPropertyName("base62")]
-        public string Base62 { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string LegacyBase62
+        {
+            get => null;
+            set => ShortCode ??= value;
+        }
     }
 }

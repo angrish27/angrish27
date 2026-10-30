@@ -6,7 +6,7 @@ A .NET Web API that turns valid long URLs into short links and redirects short l
 
 - `POST /api/url/encode` validates a URL and returns a short URL. A newly stored URL returns `201 Created`; submitting the same URL again returns `200 OK` with the existing short URL.
 - `GET /{code}` redirects to the original URL with `302 Found`. Unknown or invalid codes return `404 Not Found`.
-- Short codes are generated from sequential identifiers using Base62 encoding. With a fresh store, the first identifier is `11157` and its code is `2tx`.
+- New short codes are URL-safe Base64 encodings of the request-received Unix epoch timestamp in nanoseconds. The store advances timestamps monotonically to avoid collisions when requests arrive within the same system-clock tick. Legacy Base62 links remain supported.
 - Mappings are stored in `App_Data/url-mappings.json` by default.
 - The API also provides `GET /health`.
 
@@ -106,10 +106,10 @@ For a new URL, expect `201 Created`, a `Location` header containing the short UR
 
 ```json
 {
-  "shortUrl": "https://localhost:7181/2tx"
+  "shortUrl": "https://localhost:7181/<generated-epoch-token>"
 }
 ```
 
-The specific code depends on the contents of the URL store; `2tx` is the first code only for a fresh store. Repeating the same request returns `200 OK` and the existing short URL. Opening that URL redirects to the original URL.
+The generated token is an 11-character, URL-safe Base64 value and varies with request time and existing mappings. Repeating the same request returns `200 OK` and the existing short URL. Opening that URL redirects to the original URL. Existing mappings stored with the older Base62 format continue to work.
 
 For Postman, choose **POST**, enter the endpoint URL, then select **Body → raw → JSON** and paste the request body above. If Postman reports a certificate error with the local HTTPS endpoint, trust the .NET development certificate using the setup command above.

@@ -6,13 +6,17 @@ using CS.AgenticUrlShortner.Contracts.Logic;
 using CS.AgenticUrlShortner.Engines.Contracts;
 using CS.AgenticUrlShortner.Managers.Contracts;
 using CS.AgenticUrlShortner.Utilities.Contracts;
+using System;
 
 namespace CS.AgenticUrlShortner.Managers
 {
     internal sealed class UrlManager : ManagerBase, IUrlManager
     {
-        public async Task<EncodeUrlResponse> EncodeUrlAsync(EncodeUrlRequest request, CancellationToken cancellationToken = default)
+        public async Task<EncodeUrlResponse> EncodeUrlAsync(EncodeUrlRequest request, CancellationToken cancellationToken = default,
+            DateTimeOffset? requestReceivedAtUtc = null)
         {
+            var shortCodeUtility = UtilityFactory.Create<IShortCodeUtility>();
+            var requestEpochNanoseconds = shortCodeUtility.ToUnixEpochNanoseconds(requestReceivedAtUtc ?? DateTimeOffset.UtcNow);
             var longUrl = request?.LongUrl;
 
             EngineFactory.Create<IUrlValidationEngine>(AccessorFactory, UtilityFactory).ValidateLongUrl(longUrl);
@@ -23,13 +27,13 @@ namespace CS.AgenticUrlShortner.Managers
             if (existing != null)
                 return ToEncodeResponse(existing, false);
 
-            var (mapping, created) = await accessor.GetOrCreateAsync(longUrl, cancellationToken).ConfigureAwait(false);
+            var (mapping, created) = await accessor.GetOrCreateAsync(longUrl, requestEpochNanoseconds, cancellationToken).ConfigureAwait(false);
             return ToEncodeResponse(mapping, created);
         }
 
         public Task<DecodeUrlResponse> DecodeUrlAsync(string code, CancellationToken cancellationToken = default)
         {
-            if (!UtilityFactory.Create<IBase62Utility>().IsValid(code))
+            if (!UtilityFactory.Create<IShortCodeUtility>().IsValid(code))
                 return Task.FromResult<DecodeUrlResponse>(null);
 
             var mapping = AccessorFactory.Create<IUrlMappingAccessor>(UtilityFactory).FindByCode(code);
@@ -40,7 +44,7 @@ namespace CS.AgenticUrlShortner.Managers
         private static EncodeUrlResponse ToEncodeResponse(UrlMapping mapping, bool isNew) => new()
         {
             LongUrl = mapping.ActualLongUrl,
-            Code = mapping.Base62,
+            Code = mapping.ShortCode,
             IsNew = isNew
         };
     }

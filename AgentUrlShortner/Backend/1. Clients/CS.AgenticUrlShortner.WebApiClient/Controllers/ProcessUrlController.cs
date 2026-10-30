@@ -28,10 +28,11 @@ namespace CS.AgenticUrlShortner.WebApiClient.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public Task<IActionResult> EncodeUrl([FromBody] EncodeUrlRequest request, CancellationToken cancellationToken)
         {
-            return EncodeAsync(request, cancellationToken);
+            return EncodeAsync(request, DateTimeOffset.UtcNow, cancellationToken);
         }
 
-        private async Task<IActionResult> EncodeAsync(EncodeUrlRequest request, CancellationToken cancellationToken)
+        private async Task<IActionResult> EncodeAsync(EncodeUrlRequest request, DateTimeOffset requestReceivedAtUtc,
+            CancellationToken cancellationToken)
         {
             if (Uri.TryCreate(request?.LongUrl, UriKind.Absolute, out var target)
                 && string.Equals(target.Host, Request.Host.Host, StringComparison.OrdinalIgnoreCase))
@@ -43,7 +44,7 @@ namespace CS.AgenticUrlShortner.WebApiClient.Controllers
             }
 
             var response = await ManagerFactory.Create<IUrlManager>()
-                .EncodeUrlAsync(request, cancellationToken).ConfigureAwait(false);
+                .EncodeUrlAsync(request, cancellationToken, requestReceivedAtUtc).ConfigureAwait(false);
 
             response.ShortUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/{response.Code}";
 

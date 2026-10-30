@@ -34,9 +34,8 @@ Managers own mapping between Logic and Client contracts (private static `ToRespo
 | `EncodeUrlRequest` | Client | `LongUrl` |
 | `EncodeUrlResponse` | Client | Serialized: `ShortUrl` only. Internal (`[JsonIgnore]`): `LongUrl`, `Code`, `IsNew` (drives 201/200) |
 | `DecodeUrlResponse` | Client | `LongUrl` |
-| `UrlMapping` | Logic / persisted | `SeqNumber` → `seqNumber`, `ActualLongUrl` → `actualLongURL`, `Base62` → `base62` |
+| `UrlMapping` | Logic / persisted | `SeqNumber` → `seqNumber`, `ActualLongUrl` → `actualLongURL`, `ShortCode` → `shortCode`, `CodeEpochNanoseconds` → `codeEpochNanoseconds` |
 
-Persisted JSON is an array of `UrlMapping` with exactly those three fields. Analytics must be a separate
-increment – do not add fields to `UrlMapping`.
+New persisted records contain those four fields. The reader also accepts the legacy `base62` property and preserves those codes for existing links; a subsequent store write serializes them as `shortCode`. Analytics must be a separate increment – do not add fields to `UrlMapping`.
 
-Base62 alphabet: `0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz` (11157 = `2tx`, 11158 = `2ty`).
+New short codes are URL-safe Base64 (RFC 4648 URL alphabet without padding) of an 8-byte big-endian Unix-epoch-nanosecond timestamp. `DateTimeOffset` has 100-nanosecond tick precision; the store monotonically advances the timestamp for uniqueness within one process. Legacy Base62 codes remain valid for mappings loaded from the old JSON format.

@@ -14,7 +14,7 @@ HTTP-level tests: 9. Tests/CS.AgenticUrlShortner.Tests.ApiTests (WebApplicationF
 | Test | Covers |
 |---|---|
 | EncodeUrl_NewUrl_Returns201WithLocationAndOnlyShortUrl | 201, Location header, body = shortUrl only |
-| EncodeUrl_SequentialUrls_Return2txThen2ty | sequential ids from 11157 |
+| EncodeUrl_DifferentUrls_ReturnUniqueEpochCodes | distinct request timestamps produce increasing short codes |
 | EncodeUrl_Duplicate_Returns200WithSameShortUrl | 200 on duplicate |
 | EncodeUrl_InvalidUrl_Returns400AndDoesNotPersist | 400, no store write |
 | EncodeUrl_MissingBody_Returns400 | 400 |
