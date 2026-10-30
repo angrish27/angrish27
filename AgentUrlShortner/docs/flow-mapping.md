@@ -18,7 +18,7 @@ throw in any layer → bubbles to UseExceptionHandler
 | HTTP | Route | Action | Manager | Engines | Accessors | Utilities | Responses |
 |------|-------|--------|---------|---------|-----------|-----------|-----------|
 | POST | `/api/url/encode` | `EncodeUrl` | `IUrlManager.EncodeUrlAsync` | `IUrlValidationEngine` | `IUrlMappingAccessor` | `IBase62Utility` | 201 new (Location = short URL), 200 duplicate, 400 invalid |
-| GET | `/{code}` | `DecodeUrl` | `IUrlManager.DecodeUrlAsync` | – | `IUrlMappingAccessor.FindByCode` | `IBase62Utility.IsValid` | 301 (Location = long URL), 404 unknown |
+| GET | `/{code}` | `DecodeUrl` | `IUrlManager.DecodeUrlAsync` | – | `IUrlMappingAccessor.FindByCode` | `IBase62Utility.IsValid` | 302 (Location = long URL), 404 unknown |
 
 ### Encode
 ```

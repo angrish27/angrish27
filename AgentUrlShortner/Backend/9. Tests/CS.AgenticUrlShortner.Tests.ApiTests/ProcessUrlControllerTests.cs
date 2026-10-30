@@ -112,7 +112,7 @@ namespace CS.AgenticUrlShortner.Tests.ApiTests
         }
 
         [TestMethod]
-        public async Task DecodeUrl_KnownCode_Returns301WithLongUrlLocation()
+        public async Task DecodeUrl_KnownCode_Returns302WithLongUrlLocation()
         {
             using var factory = new ApiFactory(_storeFilePath);
             using var client = CreateClient(factory);
@@ -120,7 +120,7 @@ namespace CS.AgenticUrlShortner.Tests.ApiTests
 
             var response = await client.GetAsync("/2tx");
 
-            Assert.AreEqual(HttpStatusCode.MovedPermanently, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.Redirect, response.StatusCode);
             Assert.AreEqual("https://example.com/target?x=1", response.Headers.Location?.ToString());
         }
 
@@ -151,7 +151,7 @@ namespace CS.AgenticUrlShortner.Tests.ApiTests
             var duplicate = await EncodeAsync(restartedClient, "https://example.com/a");
             var next = await EncodeAsync(restartedClient, "https://example.com/b");
 
-            Assert.AreEqual(HttpStatusCode.MovedPermanently, redirect.StatusCode);
+            Assert.AreEqual(HttpStatusCode.Redirect, redirect.StatusCode);
             Assert.AreEqual(HttpStatusCode.OK, duplicate.StatusCode);
             Assert.AreEqual(HttpStatusCode.Created, next.StatusCode);
             StringAssert.EndsWith(next.Headers.Location?.ToString(), "/2ty");

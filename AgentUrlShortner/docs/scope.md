@@ -12,7 +12,7 @@
 | 1 | Encode a long URL: `POST /api/url/encode` -> 201 new / 200 duplicate, response `{ shortUrl }`, `Location` header | Done |
 | 2 | Validation: absolute http/https, max 2048 chars, no surrounding whitespace, no control chars, no embedded credentials, not this service -> 400 | Done |
 | 3 | Sequential ids from 11157, Base62 codes (11157 = `2tx`), case-sensitive | Done |
-| 4 | Decode `GET /{code}` -> 301 permanent redirect; unknown or malformed code -> 404 | Done |
+| 4 | Decode `GET /{code}` -> 302 temporary redirect; unknown or malformed code -> 404 | Done |
 | 5 | JSON file persistence (`UrlStore:FilePath`), loaded at startup; corrupt file blocks startup and is never overwritten | Done |
 | 6 | Store behind `IUrlMappingStore` (single instance, see ADR-001) | Done |
 | 7 | Rate limit on encode (429), 8 KB body limit, security headers, HSTS | Done |

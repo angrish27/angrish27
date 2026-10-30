@@ -51,14 +51,14 @@ namespace CS.AgenticUrlShortner.WebApiClient.Controllers
         }
 
         [HttpGet("{code}")]
-        [ProducesResponseType(StatusCodes.Status301MovedPermanently)]
+        [ProducesResponseType(StatusCodes.Status302Found)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DecodeUrl(string code, CancellationToken cancellationToken)
         {
             var response = await ManagerFactory.Create<IUrlManager>()
                 .DecodeUrlAsync(code, cancellationToken).ConfigureAwait(false);
 
-            return response == null ? NotFound() : RedirectPermanent(response.LongUrl);
+            return response == null ? NotFound() : Redirect(response.LongUrl);
         }
     }
 }

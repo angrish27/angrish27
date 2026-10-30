@@ -18,7 +18,7 @@ HTTP-level tests: 9. Tests/CS.AgenticUrlShortner.Tests.ApiTests (WebApplicationF
 | EncodeUrl_Duplicate_Returns200WithSameShortUrl | 200 on duplicate |
 | EncodeUrl_InvalidUrl_Returns400AndDoesNotPersist | 400, no store write |
 | EncodeUrl_MissingBody_Returns400 | 400 |
-| DecodeUrl_KnownCode_Returns301WithLongUrlLocation | 301 + Location |
+| DecodeUrl_KnownCode_Returns302WithLongUrlLocation | 302 + Location |
 | DecodeUrl_UnknownCode_Returns404 | 404 |
 | Restart_LoadsPersistedMappingsAndContinuesSequence | startup load regression |
 | Startup_CorruptStore_FailsAndLeavesFileUntouched | corrupt store not overwritten |

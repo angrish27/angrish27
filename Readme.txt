@@ -1,1 +1,104 @@
-Updated on 10/28/2026
+Agentic URL Shortener
+=====================
+
+A .NET Web API that turns valid long URLs into short links and redirects short links to their original destinations. The service persists URL mappings in a JSON file and exposes a health-check endpoint.
+
+What this repository does
+-------------------------
+
+- POST /api/url/encode validates a URL and returns a short URL. A newly stored URL returns 201 Created; submitting the same URL again returns 200 OK with the existing short URL.
+- GET /{code} redirects to the original URL with 302 Found. Unknown or invalid codes return 404 Not Found.
+- Short codes are generated from sequential identifiers using Base62 encoding. With a fresh store, the first identifier is 11157 and its code is 2tx.
+- Mappings are stored in App_Data/url-mappings.json by default.
+- The API also provides GET /health.
+
+The API accepts absolute HTTP or HTTPS URLs up to 2,048 characters. It rejects malformed URLs and URLs that point back to the shortener service. The encode endpoint has an 8 KB request-body limit and a default rate limit of 30 requests per minute per process.
+
+Tech used
+---------
+
+- C# and .NET 10
+- ASP.NET Core Web API
+- MSTest for unit and HTTP integration tests
+- JSON-file persistence behind a storage interface
+- Pulumi with the Azure Native provider for the infrastructure project
+
+Use of agents and agentic development
+-------------------------------------
+
+"Agentic" describes the repository's AI-assisted development workflow; the URL-shortening API itself does not require an AI agent to run.
+
+The AgentUrlShortner/docs/ folder provides context for developers and coding agents, including project scope, architecture, testing guidance, and agent instructions. The URL encode/decode feature is the reference vertical slice. Contributors can use those documents to understand the intended design, implement changes consistently, and run the matching tests.
+
+IDesign approach
+----------------
+
+The backend follows an IDesign Method-style, volatility-based layered architecture. Requests flow through:
+
+    Client (Web API) -> Manager -> Engine -> Accessor
+                             \-> Utilities and Common are shared across layers
+
+- Clients expose HTTP endpoints and handle HTTP-specific concerns.
+- Managers orchestrate use cases.
+- Engines contain business rules and validation.
+- Accessors handle persistence and external resources.
+- Utilities provide stateless helpers; Common contains shared infrastructure such as factories, context, constants, and exceptions.
+- Contracts define client-facing DTOs and internal logic models; Tests cover the layers and API.
+
+Dependencies flow down the layers: clients call managers, and lower layers do not call back into higher layers. See AgentUrlShortner/docs/architecture.md for the detailed dependency rules.
+
+How to set up
+-------------
+
+Prerequisites:
+
+- .NET 10 SDK
+- Git
+
+Run the API locally from the repository root:
+
+    dotnet dev-certs https --trust
+    dotnet run --project "AgentUrlShortner/Backend/1. Clients/CS.AgenticUrlShortner.WebApiClient/CS.AgenticUrlShortner.WebApiClient.csproj"
+
+The development launch profile listens at:
+
+- HTTPS: https://localhost:7181
+- HTTP: http://localhost:5181 (redirects to HTTPS)
+
+Check that the API is healthy at https://localhost:7181/health. The default data file is created when the first URL is encoded, under the API content root. Ensure that directory is writable. The default JSON-file store and its in-process locking are intended for a single running instance; see AgentUrlShortner/docs/decisions.md.
+
+Build and test from the repository root:
+
+    dotnet build AgentUrlShortner/Backend/CS.AgenticUrlShortner.sln
+    dotnet test AgentUrlShortner/Backend/CS.AgenticUrlShortner.sln
+
+The test suite uses MSTest and includes API integration tests. See AgentUrlShortner/docs/testing.md for test projects and conventions.
+
+Sample request and expected response
+------------------------------------
+
+Send a POST request to:
+
+    https://localhost:7181/api/url/encode
+
+Set Content-Type: application/json and use this JSON body:
+
+    {
+      "longUrl": "https://example.com/my-page"
+    }
+
+For example, with curl:
+
+    curl -i -X POST "https://localhost:7181/api/url/encode" \
+      -H "Content-Type: application/json" \
+      -d '{"longUrl":"https://example.com/my-page"}'
+
+For a new URL, expect 201 Created, a Location header containing the short URL, and a response body like:
+
+    {
+      "shortUrl": "https://localhost:7181/2tx"
+    }
+
+The specific code depends on the contents of the URL store; 2tx is the first code only for a fresh store. Repeating the same request returns 200 OK and the existing short URL. Opening that URL redirects to the original URL.
+
+For Postman, choose POST, enter the endpoint URL, then select Body -> raw -> JSON and paste the request body above. If Postman reports a certificate error with the local HTTPS endpoint, trust the .NET development certificate using the setup command above.
