@@ -20,11 +20,11 @@ The API accepts absolute HTTP or HTTPS URLs up to 2,048 characters. It rejects m
 - JSON-file persistence behind a storage interface
 - Pulumi with the Azure Native provider for the infrastructure project
 
-## Use of agents and agentic development
+## Agentic AI development
 
-“Agentic” describes the repository’s AI-assisted development workflow; the URL-shortening API itself does not require an AI agent to run.
+This project uses AI coding agents as active participants in software development, not just for one-off code suggestions. Repository guidance gives agents the architecture and conventions they need to plan a task, implement changes across the appropriate layers, run tests, iterate on failures, and report their results. A human reviews and approves changes before they are merged.
 
-The repository root [`AGENTS.md`](AGENTS.md) defines the required plan → implement → test → report workflow and requires human review and approval before merging. Detailed architecture and coding guidance lives in [`AgentUrlShortner/docs/agent-instructions.md`](AgentUrlShortner/docs/agent-instructions.md); see the [agent-driven change example](AgentUrlShortner/docs/agentic-development-example.md) for a sample task, test results, and review status. The URL encode/decode feature is the reference vertical slice.
+The workflow is defined in the repository root [`AGENTS.md`](AGENTS.md), with detailed architecture and coding guidance in [`AgentUrlShortner/docs/agent-instructions.md`](AgentUrlShortner/docs/agent-instructions.md). See the [agent-driven change example](AgentUrlShortner/docs/agentic-development-example.md) for a sample task and its test report. The API itself remains a conventional URL shortener; it does not require AI to run.
 
 ## IDesign approach
 
