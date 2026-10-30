@@ -1,0 +1,44 @@
+# Agent Instructions
+
+## Before you start
+1. Read [00-master-context.md](00-master-context.md), then the docs relevant to your task.
+2. Check [scope.md](scope.md) – do not implement out-of-scope features without explicit approval.
+3. Use the URL shortener slice (`ProcessUrlController` / `UrlManager`) as the reference implementation for any new feature.
+
+## Coding rules
+- C# targeting `net10.0`, `LangVersion latest`. **Nullable disabled, implicit usings disabled** → add explicit `using`s.
+- **Warnings are errors** – the build must be warning-free.
+- Block-scoped namespaces matching folder/project (`namespace CS.AgenticUrlShortner.Managers { ... }`), as in existing code.
+- Implementations are `internal sealed`, interfaces are `public` in the layer's `Contracts` folder and inherit `IService`.
+- Services need a **parameterless constructor**; no constructor injection. Get dependencies through the inherited factories.
+- Register every new service in its layer's `Factory.RegisterTypes`.
+- Async methods: suffix `Async`, accept `CancellationToken cancellationToken = default`, use `.ConfigureAwait(false)`.
+- Throw `BadRequestException` for validation, `AgenticUrlShortnerException` for domain errors; never return error codes from services.
+- Controllers inherit `BaseController`, stay thin (one Manager call), and declare `[ProducesResponseType]`.
+- Respect layer call rules in [architecture.md](architecture.md). No upward or sideways calls.
+- Do not expose `Contracts.Logic` types from controllers.
+- No comments unless they explain something non-obvious. Follow `.editorconfig`.
+- Do not add NuGet packages unless necessary; prefer what already exists.
+
+## Workflow for a new feature
+1. Add/adjust contracts (Client + Logic) → update [data-models.md](data-models.md).
+2. Add Utility/Accessor/Engine/Manager bottom-up, each with interface + registration.
+3. Add controller endpoint → update [flow-mapping.md](flow-mapping.md).
+4. Add tests per layer → follow [testing.md](testing.md).
+5. Infra changes → update [infra.md](infra.md).
+6. Run `dotnet build` and `dotnet test` on `Backend/CS.AgenticUrlShortner.sln`.
+
+## Solution structure
+- Projects live on disk under the numbered folders (`Backend/3. Managers/...`) and in matching solution folders.
+- New projects: place in the right numbered folder and add with
+  `dotnet sln Backend/CS.AgenticUrlShortner.sln add <path> --solution-folder "<n>. <Folder>"`.
+
+## Keeping context fresh
+Any change to architecture, bootstrap, models, flows, tests, infra or scope MUST update the matching
+doc in `docs/` in the same change. Docs that disagree with code are bugs.
+
+## Don'ts
+- Don't `new` a service or factory inside services (factories only create downstream factories).
+- Don't access `HttpContext` below the Client layer; use `Context` (`AmbientContext`).
+- Don't commit secrets, connection strings, or personal data.
+- Don't change `Directory.Build.props` rules to silence warnings – fix the cause.

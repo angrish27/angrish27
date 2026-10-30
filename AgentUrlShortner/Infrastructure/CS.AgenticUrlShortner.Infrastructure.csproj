@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Pulumi" Version="3.116.2" />
+		<PackageReference Include="Pulumi.AzureNative" Version="3.29.0" />
+		<!-- Pin patched versions of vulnerable transitive dependencies brought in by Pulumi -->
+		<PackageReference Include="OpenTelemetry.Api" Version="1.20.1" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.20.1" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\5. Accessors\CS.AgenticUrlShortner.Accessors\CS.AgenticUrlShortner.Accessors.csproj" />
+		<ProjectReference Include="..\..\7. Common\CS.AgenticUrlShortner.Common\CS.AgenticUrlShortner.Common.csproj" />
+		<ProjectReference Include="..\..\2. Contracts\CS.AgenticUrlShortner.Contracts.Client\CS.AgenticUrlShortner.Contracts.Client.csproj" />
+		<ProjectReference Include="..\..\2. Contracts\CS.AgenticUrlShortner.Contracts.Logic\CS.AgenticUrlShortner.Contracts.Logic.csproj" />
+		<ProjectReference Include="..\..\4. Engines\CS.AgenticUrlShortner.Engines\CS.AgenticUrlShortner.Engines.csproj" />
+		<ProjectReference Include="..\..\6. Utilities\CS.AgenticUrlShortner.Utilities\CS.AgenticUrlShortner.Utilities.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "CS.AgenticUrlShortner.WebApiClient",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/Backend/1. Clients/CS.AgenticUrlShortner.WebApiClient/CS.AgenticUrlShortner.WebApiClient.csproj",
+      "launchConfigurationId": "Project"
+    }
+  ]
+}

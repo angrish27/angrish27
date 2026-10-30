@@ -1,0 +1,68 @@
+{
+  "runId": "20261030-020041-5573a4",
+  "status": "AwaitingApproval",
+  "startedAt": "2026-10-30T02:00:41.5503529+00:00",
+  "finishedAt": "2026-10-30T02:00:41.5794987+00:00",
+  "stages": {
+    "requirements": {
+      "status": "Succeeded",
+      "fingerprint": "d5772b4812fd1c22ca9a6cfb0ac374c5f4e3de5bf3a47d8f9bafec0bacba872a",
+      "attempts": 1,
+      "usedFallback": false,
+      "startedAt": "2026-10-30T02:00:41.563688+00:00",
+      "finishedAt": "2026-10-30T02:00:41.5672588+00:00",
+      "completedInRun": "20261030-020041-5573a4"
+    },
+    "design": {
+      "status": "AwaitingApproval",
+      "fingerprint": "9ca593fd462fd2c5c63f8990c74d1665a1c1465ead03f05550703ab5554fb530",
+      "attempts": 0,
+      "usedFallback": false,
+      "startedAt": "2026-10-30T02:00:41.5712609+00:00",
+      "finishedAt": "2026-10-30T02:00:41.5734653+00:00",
+      "lastError": "Architecture decisions are high impact"
+    },
+    "implementation": {
+      "status": "Pending",
+      "fingerprint": "51d8e2d20d43bbbe041acb85b47bc16336c6a14f9992bdd17a7d66e2e4328c9d",
+      "attempts": 0,
+      "usedFallback": false
+    },
+    "unit-tests": {
+      "status": "Pending",
+      "fingerprint": "db6fa96dfb17e715fe0a19c6ebc60d6eed9e4f0c2a96dc1a0b1249791ccab4c0",
+      "attempts": 0,
+      "usedFallback": false
+    },
+    "api-tests": {
+      "status": "Pending",
+      "fingerprint": "c6eff7f99ff1f5fb823db3ab6ff9a922a8712074bf8ed5b11530f7012e1ca31d",
+      "attempts": 0,
+      "usedFallback": false
+    },
+    "security-scan": {
+      "status": "Pending",
+      "fingerprint": "3cdf68b3a4bbf0f8430f37e43d551c0c11643e9edb3d6739485a99eb422eccc1",
+      "attempts": 0,
+      "usedFallback": false
+    },
+    "verification-join": {
+      "status": "Pending",
+      "fingerprint": "a0a6297288d057305f246a71b25df910496e3403ccea7ee4cfeb02e8f14981b8",
+      "attempts": 0,
+      "usedFallback": false
+    },
+    "documentation": {
+      "status": "Pending",
+      "fingerprint": "2fc6fe54679834499eb73b8f14870afc17833ee73511ffb6e1a6ea8b046516d1",
+      "attempts": 0,
+      "usedFallback": false
+    },
+    "release-readiness": {
+      "status": "Pending",
+      "fingerprint": "a6cb74cbcf6cc70de70b93db1df3671e569228ad8e0dbfd63a51e5194626cd2f",
+      "attempts": 0,
+      "usedFallback": false
+    }
+  }
+}

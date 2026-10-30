@@ -1,0 +1,7 @@
+config:
+  azure-native:location: centralus
+  CS-AgenticUrlShortner:settings:
+    appName: agenticurlshortner
+    aspnetCoreEnvironment: Development
+    appServicePlanSku: B1
+    logRetentionInDays: 30

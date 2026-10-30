@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\7. Common\CS.AgenticUrlShortner.Common\CS.AgenticUrlShortner.Common.csproj" />
+		<ProjectReference Include="..\..\2. Contracts\CS.AgenticUrlShortner.Contracts.Client\CS.AgenticUrlShortner.Contracts.Client.csproj" />
+		<ProjectReference Include="..\..\3. Managers\CS.AgenticUrlShortner.Managers\CS.AgenticUrlShortner.Managers.csproj" />
+	</ItemGroup>
+
+</Project>
