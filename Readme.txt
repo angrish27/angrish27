@@ -102,3 +102,5 @@ For a new URL, expect 201 Created, a Location header containing the short URL, a
 The generated token is an 11-character, URL-safe Base64 value and varies with request time and existing mappings. Repeating the same request returns 200 OK and the existing short URL. Opening that URL redirects to the original URL. Existing mappings stored with the older Base62 format continue to work.
 
 For Postman, choose POST, enter the endpoint URL, then select Body -> raw -> JSON and paste the request body above. If Postman reports a certificate error with the local HTTPS endpoint, trust the .NET development certificate using the setup command above.
+
+End of file
